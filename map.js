@@ -149,7 +149,7 @@ var drawOnMap = function(data, detail){
     var points = [];
     var bounds = new google.maps.LatLngBounds();
 
-    function drawRect(data, id){
+    function drawRect(data, id, sortOrder){
         var tCol = getColours(data.medianPricePerArea, data.medianPricePerHabRoom);
         return(new google.maps.Rectangle({
                 strokeColor: tCol[1],
@@ -159,53 +159,61 @@ var drawOnMap = function(data, detail){
                 fillOpacity: 0.35,
                 map: map,
                 bounds: data.polygon.polygon.getBounds(),
-                pid: id
+                pid: id,
+                sortOrder: sortOrder
             })
         );
     }
-
+    var polyArr = [];
     // if(detail.length > 0){
         if(detail[0]){
             if(detail[1] && data[detail[0]][detail[1].toUpperCase()]){
                 //write out within letter
-                // data[detail[0]][detail[1]].forEach(function(h,i){
-                    var TLet = data[detail[0]][detail[1].toUpperCase()];
-                    TLet.polygon.bounds = drawRect(TLet, detail[0]+detail[1].toUpperCase());
-                    google.maps.event.addListener(TLet.polygon.bounds, 'click', function (event) {
-                         highlightData(this);
-                    }); 
-                    TLet.polygon.bounds.setMap(map);
-                    points.push(...TLet.polygon.points)
-                // })
+                var TLet = data[detail[0]][detail[1].toUpperCase()];
+                TLet.polygon.bounds = drawRect(TLet, detail[0]+detail[1].toUpperCase(),TLet.data.length);
+                google.maps.event.addListener(TLet.polygon.bounds, 'click', function (event) {
+                        highlightData(this);
+                });
+                polyArr.push(TLet.polygon.bounds);
+                TLet.polygon.bounds.setMap(map);
+                points.push(...TLet.polygon.points)
             }else{
                 //write within number
                 for(var l in data[detail[0]]){
-                    // data[detail[0]][l].forEach(function(h,i){
-                        data[detail[0]][l].polygon.bounds = drawRect(data[detail[0]][l],detail[0]+l);
-                        google.maps.event.addListener(data[detail[0]][l].polygon.bounds, 'click', function (event) {
-                             highlightData(this);
-                        }); 
-                        data[detail[0]][l].polygon.bounds.setMap(map);
-                        points.push(...data[detail[0]][l].polygon.points);
-                    // })
+                    data[detail[0]][l].polygon.bounds = drawRect(data[detail[0]][l],detail[0]+l,data[detail[0]][l].data.length);
+                    google.maps.event.addListener(data[detail[0]][l].polygon.bounds, 'click', function (event) {
+                            highlightData(this);
+                    });
+                    polyArr.push(data[detail[0]][l].polygon.bounds);
+                    data[detail[0]][l].polygon.bounds.setMap(map);
+                    points.push(...data[detail[0]][l].polygon.points);
                 }
             }
         }else{
             //write out all numnbers and all letters
             for(var i in data){
                  for(var l in data[i]){
-                    // data[i][l].forEach(function(h,i){
-                        data[i][l].polygon.bounds = drawRect(data[i][l], i+l);
-                        google.maps.event.addListener(data[i][l].polygon.bounds, 'click', function (event) {
-                            highlightData(this);
-                        }); 
-                        data[i][l].polygon.bounds.setMap(map);
-                        points.push(...data[i][l].polygon.points);
-                    // })
+                    data[i][l].polygon.bounds = drawRect(data[i][l], i+l, data[i][l].data.length);
+                    google.maps.event.addListener(data[i][l].polygon.bounds, 'click', function (event) {
+                        highlightData(this);
+                    });
+                    polyArr.push(data[i][l].polygon.bounds);
+                    data[i][l].polygon.bounds.setMap(map);
+                    points.push(...data[i][l].polygon.points);
                 }
             }
         }
     // }
+    polyArr.sort(function(a,b) {
+        if (a.sortOrder < b.sortOrder)
+            return -1;
+        if (a.sortOrder > b.sortOrder)
+            return 1;
+        return 0;
+    });
+    for(var i=0;i<polyArr.length;i++){
+        polyArr[i].setZIndex(polyArr.length - i);
+    }
     for (var i = 0; i < points.length; i++) {
         bounds.extend(points[i]);
     }
