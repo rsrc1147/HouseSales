@@ -110,7 +110,6 @@ function highlightData(poly,id){
             }
         } 
     }else{
-        console.log(poly)
         poly.setOptions({strokeOpacity: 1, fillOpacity: 0.8});
         $('.table_'+poly.pid).addClass('selectedRow');
     }
@@ -212,7 +211,8 @@ var drawOnMap = function(data, detail){
         return 0;
     });
     for(var i=0;i<polyArr.length;i++){
-        polyArr[i].setZIndex(polyArr.length - i);
+        console.log(polyArr[i])
+        // polyArr[i].setZIndex(polyArr.length - i);
     }
     for (var i = 0; i < points.length; i++) {
         bounds.extend(points[i]);
