@@ -211,8 +211,9 @@ var drawOnMap = function(data, detail){
         return 0;
     });
     for(var i=0;i<polyArr.length;i++){
-        console.log(polyArr[i])
-        // polyArr[i].setZIndex(polyArr.length - i);
+        // console.log(polyArr[i])
+        // polyArr[i].setZIndex(polyArr.length - i);zIndex
+        polyArr[i].setOptions({zIndex:polyArr.length - i});
     }
     for (var i = 0; i < points.length; i++) {
         bounds.extend(points[i]);
