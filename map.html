@@ -1,0 +1,128 @@
+
+<!DOCTYPE html>
+<html lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>House Price per Area / Rooms</title>
+
+        <!-- Bootstrap CSS -->
+        <link href="http://netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+        <style>
+            #map{
+                width: 100%;
+                height: 50vh;
+            }
+            .selectedRow{
+                background-color: #5bc0de;
+                border: 1px solid #337ab7;
+            }
+        </style>
+    </head>
+    <body>
+        <h1 class="text-center">todo: data table, filters</h1>
+        
+        <div class="container">
+            
+            <div class="row">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="outCode" placeholder="Outcode" style='width:50%'>
+                    <input type="text" class="form-control" id="inCode" placeholder="Incode" style='width:50%'>
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" id="findPostcode">Go!</button>
+                    </span>
+                </div>
+                
+            </div>
+            <hr>
+            <div class="row">
+                <div id='map'></div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-xs-12">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Postcode</th>
+                                <th>Number of records</th>
+                                <th>Average Price</th>
+                                <th>Average Number of Hab Rooms</th>
+                                <th>Average Floor Area</th>
+                                <th>Average £ per Hab Room 1</th>
+                                <th>Average £ per Hab Room 2</th>
+                                <th>Median £ per Hab Room</th>     
+                                <th>Average £ per Floor Area 1</th>
+                                <th>Average £ per Floor Area 2</th>
+                                <th>Median £ per Floor Area 2</th>                                
+                            </tr>
+                        </thead>
+                        <tbody id='resultsBody'></tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </div>
+        
+        
+        
+        
+        <!-- jQuery -->
+        <script src="http://code.jquery.com/jquery.js"></script>
+        <!-- Bootstrap JavaScript -->
+        <script src="http://netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <script src="map.js"></script>
+         <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAeGMRfjq2lCknTqxM7H4xFNUthXIq0D1s&callback=initMap&libraries=geometry">
+        </script>
+        <script>
+            var map;
+            function initMap() {
+                map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 5,
+                    center: {lat: 24.886, lng: -70.268},
+                    mapTypeId: 'terrain'
+                });
+
+                if(!google.maps.Polygon.prototype.getBounds){  
+                    google.maps.Polygon.prototype.getBounds = function() {
+                        var bounds = new google.maps.LatLngBounds();
+                        var paths = this.getPaths();    
+                        for (var i = 0; i < paths.getLength(); i++) {
+                            var path = paths.getAt(i);
+                            for (var j = 0; j < path.getLength(); j++) {
+                                bounds.extend(path.getAt(j));
+                            }
+                        }
+                        return bounds;
+                    }
+                }
+            }
+            $(document).ready(function(){
+                $('#findPostcode').click(function(){
+                    var outCode = $('#outCode').val();
+                    getData(outCode)
+                    .then(function(retData){
+                        var tData = makePolys(retData);
+                        var detail = $('#inCode').val();
+                        drawOnMap(tData, detail);
+                        fillOutTable(tData, detail, outCode);
+                    })
+                })
+
+                $('body').on('click','.table_row',function(){
+                    console.log($(this).data('pid'));
+                    highlightData(false,$(this).data('pid'))
+                })
+            })
+        </script>
+    </body>
+</html>
