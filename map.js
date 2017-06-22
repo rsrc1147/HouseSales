@@ -237,7 +237,7 @@ var fillOutTable = function(data, detail, outCode){
                     '<td>'+Math.round(data.medianPricePerHabRoom)+'</td>'+ 
                     '<td>'+Math.round(data.averagePricePerAreaRoom1)+'</td>'+
                     '<td>'+Math.round(data.averagePricePerAreaRoom2)+'</td>'+                    
-                    '<td>'+Math.round(data.medianPricePerAreaArr)+'</td>'+                    
+                    '<td>'+Math.round(data.medianPricePerArea)+'</td>'+                    
                 '</tr>'
         )
     }
