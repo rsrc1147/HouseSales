@@ -214,7 +214,7 @@ var drawOnMap = function(data, detail){
         // console.log(polyArr[i])
         // polyArr[i].setZIndex(polyArr.length - i);zIndex
         polyArr[i].setOptions({zIndex:polyArr.length - i});
-        polyArr[i].origZ = zIndex:polyArr.length - i;
+        polyArr[i].origZ = polyArr.length - i;
     }
     for (var i = 0; i < points.length; i++) {
         bounds.extend(points[i]);
