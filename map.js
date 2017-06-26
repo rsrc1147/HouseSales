@@ -92,7 +92,7 @@ function highlightData(poly,id){
     for (var h in retData){
         for(var c in retData[h]){
             if(retData[h][c].polygon){
-                retData[h][c].polygon.bounds.setOptions({strokeOpacity: 0.5, fillOpacity: 0.35});
+                retData[h][c].polygon.bounds.setOptions({strokeOpacity: 0.5, fillOpacity: 0.35, zIndex: retData[h][c].polygon.bounds.origZ});
             }
         }
     }
@@ -104,7 +104,7 @@ function highlightData(poly,id){
                 if(retData[h][c].polygon){
                     console.log(retData[h][c].polygon.bounds.pid)
                     if(retData[h][c].polygon.bounds.pid == id){
-                        retData[h][c].polygon.bounds.setOptions({strokeOpacity: 1, fillOpacity: 0.8});
+                        retData[h][c].polygon.bounds.setOptions({strokeOpacity: 1, fillOpacity: 0.8, zIndex: 1000});
                     }
                 }
             }
@@ -214,6 +214,7 @@ var drawOnMap = function(data, detail){
         // console.log(polyArr[i])
         // polyArr[i].setZIndex(polyArr.length - i);zIndex
         polyArr[i].setOptions({zIndex:polyArr.length - i});
+        polyArr[i].origZ = zIndex:polyArr.length - i;
     }
     for (var i = 0; i < points.length; i++) {
         bounds.extend(points[i]);
