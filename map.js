@@ -16,7 +16,7 @@ var makeArrays = function (data){
 var getData = function(outCode){
     return new Promise(function(resolve, reject){
         if(outCode != currOut){
-            $.getJSON( "https://rsrc1147.github.io/HouseSales/"+outCode.toUpperCase()+'.json', function( data ) {
+            $.getJSON( "http://api-encraft.rhcloud.com/housesales/"+outCode.toUpperCase()+'.json', function( data ) {
                 retData = makeArrays(data.data);
                 return resolve(retData);
             })
