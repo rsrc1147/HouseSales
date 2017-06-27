@@ -2,22 +2,32 @@ var currOut = '';
 var retData;
 
 var makeArrays = function (data){
-    var outCodes = {}, tPost, tOut;
-    data.forEach(function(h,i){
-        tPost = h[4].trim();
-        tOut = tPost.substr(tPost.length-3);
-        if(!outCodes[tOut[0]]) outCodes[tOut[0]]={};
-        if(!outCodes[tOut[0]][tOut[1]]) outCodes[tOut[0]][tOut[1]] = {data:[], totalSales:0};
-        outCodes[tOut[0]][tOut[1]].data.push(h);
-    })
-    return outCodes;
+    var postcodes = {}, tData;
+    for(var outC in data){
+        tData = data[outC].data;
+        tData.forEach(function(h,i){
+            tPost = h[4].trim();
+            tOut = tPost.substr(tPost.length-3);
+            console.log(tOut)
+        })
+    }
+    // var outCodes = {}, tPost, tOut;
+    // data.forEach(function(h,i){
+    //     tPost = h[4].trim();
+    //     tOut = tPost.substr(tPost.length-3);
+    //     if(!outCodes[tOut[0]]) outCodes[tOut[0]]={};
+    //     if(!outCodes[tOut[0]][tOut[1]]) outCodes[tOut[0]][tOut[1]] = {data:[], totalSales:0};
+    //     outCodes[tOut[0]][tOut[1]].data.push(h);
+    // })
+    // return outCodes;
 }
 
 var getData = function(outCode){
     return new Promise(function(resolve, reject){
         if(outCode != currOut){
-            $.getJSON( "https://api-encraft.rhcloud.com/housesales/"+outCode.toUpperCase()+'.json', function( data ) {
-                retData = makeArrays(data.data);
+            $.getJSON( "https://api-encraft.rhcloud.com/housesales/"+outCode.toUpperCase(), function( data ) {
+                console.log(data)
+                retData = makeArrays(data);
                 return resolve(retData);
             })
             currOut = outCode;

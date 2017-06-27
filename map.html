@@ -9,7 +9,8 @@
 
         <!-- Bootstrap CSS -->
         <link href="https://netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
-
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.4/css/selectize.bootstrap3.css" />
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css">
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
         <!--[if lt IE 9]>
@@ -25,17 +26,23 @@
                 background-color: #5bc0de;
                 border: 1px solid #337ab7;
             }
+            td.details-control {
+                background: url('https://datatables.net/examples/resources/details_open.png') no-repeat center center;
+                cursor: pointer;
+            }
+            tr.shown td.details-control {
+                background: url('https://datatables.net/examples/resources/details_close.png') no-repeat center center;
+            }
         </style>
     </head>
     <body>
-        <h1 class="text-center">todo: data table, filters</h1>
+        <h1 class="text-center">todo: price index</h1>
         
         <div class="container">
             
             <div class="row">
                 <div class="input-group">
-                    <input type="text" class="form-control" id="outCode" placeholder="Outcode" style='width:50%'>
-                    <input type="text" class="form-control" id="inCode" placeholder="Incode" style='width:50%'>
+                    <input type="text" class="form-control" id="outCode" placeholder="Outcodes">                   
                     <span class="input-group-btn">
                         <button type="button" class="btn btn-default" id="findPostcode">Go!</button>
                     </span>
@@ -48,24 +55,45 @@
             </div>
             <hr>
             <div class="row">
+                <form class="form-inline">
+                    <div class="form-group">
+                        <label for="exampleInputName2">Outcode</label>
+                        <input type="text" class="form-control" id="filterOutCode" style='width:200px'>
+                    </div>
+                     <div class="form-group">
+                        <label for="exampleInputName2">Incode</label>
+                        <input type="text" class="form-control" id="filterInCode" style='width:200px'>
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputName2">House Type</label>
+                        <input type="text" class="form-control" id="filterHouseType" style='width:200px'>
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputName2">Quartile</label>
+                        <input type="text" class="form-control" id="filterQuartile" style='width:200px'>
+                    </div>
+                    <button type="button" class="btn btn-default" id="applyFilters">Apply</button>
+                </form>
+            </div>
+            
+            <hr>
+            <div class="row">
                 <div class="col-xs-12">
-                    <table class="table table-hover">
+                    <table class="table table-hover" id='dataTable'>
                         <thead>
                             <tr>
+                                <th></th>
                                 <th>Postcode</th>
-                                <th>Number of records</th>
-                                <th>Average Price</th>
-                                <th>Average Number of Hab Rooms</th>
-                                <th>Average Floor Area</th>
-                                <th>Average £ per Hab Room 1</th>
-                                <th>Average £ per Hab Room 2</th>
-                                <th>Median £ per Hab Room</th>     
-                                <th>Average £ per Floor Area 1</th>
-                                <th>Average £ per Floor Area 2</th>
-                                <th>Median £ per Floor Area 2</th>                                
+                                <th># Records</th>
+                                <th>Av Price</th>
+                                <th>Av # Rooms</th>
+                                <th>Av Area</th>
+                                <th>Av £ Per Hab Room</th>
+                                <th>Med £ Per Hab Room</th>
+                                <th>Av £ Area</th>
+                                <th>Med £ Area</th>                                
                             </tr>
                         </thead>
-                        <tbody id='resultsBody'></tbody>
                     </table>
                 </div>
             </div>
@@ -79,10 +107,9 @@
         <script src="https://code.jquery.com/jquery.js"></script>
         <!-- Bootstrap JavaScript -->
         <script src="https://netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-        <script src="map.js"></script>
-         <script async defer
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAeGMRfjq2lCknTqxM7H4xFNUthXIq0D1s&callback=initMap&libraries=geometry">
-        </script>
+        <script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.4/js/standalone/selectize.min.js"></script>
+        <script src="scripts/data.js"></script>        
         <script>
             var map;
             function initMap() {
@@ -105,24 +132,28 @@
                         return bounds;
                     }
                 }
+                map.addListener('click', findPolys);
             }
             $(document).ready(function(){
-                $('#findPostcode').click(function(){
-                    var outCode = $('#outCode').val();
-                    getData(outCode)
-                    .then(function(retData){
-                        var tData = makePolys(retData);
-                        var detail = $('#inCode').val();
-                        drawOnMap(tData, detail);
-                        fillOutTable(tData, detail, outCode);
-                    })
-                })
+                // $('#findPostcode').click(function(){
+                //     var outCode = $('#outCode').val();
+                //     getData(outCode)
+                //     .then(function(retData){
+                //         var tData = makePolys(retData);
+                //         var detail = $('#inCode').val();
+                //         drawOnMap(tData, detail);
+                //         fillOutTable(tData, detail, outCode);
+                //     })
+                // })
 
-                $('body').on('click','.table_row',function(){
-                    console.log($(this).data('pid'));
-                    highlightData(false,$(this).data('pid'))
-                })
+                // $('body').on('click','.table_row',function(){
+                //     console.log($(this).data('pid'));
+                //     highlightData(false,$(this).data('pid'))
+                // })
             })
+        </script>
+        <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAeGMRfjq2lCknTqxM7H4xFNUthXIq0D1s&callback=initMap&libraries=geometry">
         </script>
     </body>
 </html>
