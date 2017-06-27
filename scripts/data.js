@@ -63,7 +63,8 @@ var calcPrices = function(data){
                 averageArea : 0,
                 averagePrice : 0,
                 medianPricePerHabRoomArr : [],
-                medianPricePerAreaArr : []
+                medianPricePerAreaArr : [],
+                sampleSize : data[k].data.length
             }
             data[k].data.forEach(function(h,i){
                 h[23] = (h[18]*1 != 0 ? (h[2]*1) / (h[18]*1) : 0);
@@ -165,6 +166,7 @@ var makePolys = function(data){
                 bounds: data[k].polygon.polygon.getBounds(),
                 pid: k,
                 map: map,
+                prices: data[k].prices
             })
             // google.maps.event.addListener(data[k].polygon.bounds, 'click', function (event) {
             //         findPolys(this);
@@ -395,7 +397,7 @@ var findPolys = function(e){
             found.push(x.pid);
             infoWindows.push(
                 new google.maps.InfoWindow({
-                    content: "<a href='#"+x.pid.replace(' ','_')+"'>"+x.pid+"</a>",
+                    content: "<p><b><a href='#"+x.pid.replace(' ','_')+"'>"+x.pid+"</a></b><p><p><b>Average per m<sup>2</sup> :</b> £"+Math.round(x.prices.medianPricePerArea)+"</p><p><b>Sample size :</b> "+x.prices.sampleSize+"</p>",
                     position: x.getBounds().getCenter()
                 })
             )
@@ -404,6 +406,12 @@ var findPolys = function(e){
     });
 
     infoWindows.forEach(function(o,i){
+        // o.addListener('click', function(e){
+        //     infoWindows.forEach(function(o,i){
+        //         this.setZIndex(1);
+        //     })
+        //     this.setZIndex(100);
+        // })
         o.open(map);
     })
 
