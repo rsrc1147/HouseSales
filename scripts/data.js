@@ -320,13 +320,15 @@ var makeTable = function(data){
             AveragePerFloorArea:Math.round(data[k].prices.averagePricePerAreaRoom1),
             MedianPerFloorArea:Math.round(data[k].prices.medianPricePerArea),
             Data:data[k].data,
-            ID:k
+            ID:k,
+            Row_id: k.replace(' ','_')
         })
     }
     // $(document).ready(function() {
     table = $('#dataTable').DataTable( {
         "destroy": true,
         "data" : tableData,
+        "rowId" : "Row_id",
         "columns": [
             {
                 "className":      'details-control',
@@ -371,8 +373,8 @@ var makeTable = function(data){
     // } ); 
 }
 
+var infoWindows = [];
 var findPolys = function(e){
-    // console.log(e.latLng);
     var found = [];
     table.rows().every( function ( rowIdx, tableLoop, rowLoop ) {
         table.row( rowIdx ).child.hide();
@@ -382,36 +384,39 @@ var findPolys = function(e){
     $.fn.dataTable.ext.search.pop();
     table.draw();
 
+    infoWindows.forEach(function(o,i){
+        o.setMap(null);
+    })
+    infoWindows = [];
+
     polys.map(function(x){
         x.setOptions({strokeOpacity: 0.5, fillOpacity: 0.15});
         if(x.getBounds().contains(e.latLng)){
             found.push(x.pid);
+            infoWindows.push(
+                new google.maps.InfoWindow({
+                    content: "<a href='#"+x.pid.replace(' ','_')+"'>"+x.pid+"</a>",
+                    position: x.getBounds().getCenter()
+                })
+            )
             x.setOptions({strokeOpacity: 1, fillOpacity: 0.75, zIndex:1000});
         }
-
     });
+
+    infoWindows.forEach(function(o,i){
+        o.open(map);
+    })
+
     if(found.length == 0){
         polys.map(function(x){x.setOptions({strokeOpacity: 0.5, fillOpacity: 0.35})});       
     }else{
         var tData = table.data();
         $.fn.dataTable.ext.search.push(
             function(settings, data, dataIndex) {
-                // return found.includes($(table.row(dataIndex).node()).attr('ID'));
                 return found.includes(tData[dataIndex].ID);
             }
         );
         table.draw();
-        // table.rows().every( function ( rowIdx, tableLoop, rowLoop ) {
-        //     var tData = this.data();
-        //     if (found.includes(tData.ID)){
-        //         // var row = table.row( rowIdx );
-        //         // row.child( formatTable(row.data()), false ).show();
-        //         // $(table.row( rowIdx )).addClass('shown');
-        //         // $(table.row( rowIdx )).show();
-        //     }else{
-        //         // $(table.row( rowIdx )).hide();
-        //     }
-        // } );
     }
     
 
