@@ -321,14 +321,14 @@ var makeTable = function(data){
             MedianPerFloorArea:Math.round(data[k].prices.medianPricePerArea),
             Data:data[k].data,
             ID:k,
-            Row_id: k.replace(' ','_')
+            RowID: k.replace(' ','_')
         })
     }
     // $(document).ready(function() {
     table = $('#dataTable').DataTable( {
         "destroy": true,
         "data" : tableData,
-        "rowId" : "Row_id",
+        "rowId" : "RowID",
         "columns": [
             {
                 "className":      'details-control',
