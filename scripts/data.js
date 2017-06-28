@@ -171,9 +171,23 @@ var makePolys = function(data){
             // google.maps.event.addListener(data[k].polygon.bounds, 'click', function (event) {
             //         findPolys(this);
             // });
+            data[k].polygon.bounds.Area = google.maps.geometry.spherical.computeArea(data[k].polygon.points);
             data[k].polygon.bounds.addListener('click', findPolys);
             polys.push(data[k].polygon.bounds);
         }
+
+        polys.sort(function(a,b) {
+            if (a.Area > b.Area)
+                return -1;
+            if (a.Area < b.Area)
+                return 1;
+            return 0;
+            }
+        )
+        polys.forEach(function(p,i){
+            p.OrigZ = i;
+            p.setOptions({zIndex:i})
+        });
         containingPoly = new google.maps.Polygon({
             paths: containingPoints
         });
